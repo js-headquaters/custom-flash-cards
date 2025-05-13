@@ -1,0 +1,51 @@
+<div class="flash-card-container">
+  @if (card) {
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>
+          {{ card.spanish }}
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (!showAnswer) {
+          <p style="font-size: 1.5em;">
+            {{ card.spanish }}
+          </p>
+          <button mat-button color="accent" (click)="showAnswerChange.emit(true)">
+            Show Answer
+          </button>
+        }
+        @if (showAnswer) {
+          <p style="font-size: 1.2em; color: #666;">
+            Answer: {{ card.english }}
+          </p>
+          <button mat-button color="primary" (click)="onMarkCorrect()">
+            Correct
+          </button>
+          <button mat-button color="warn" (click)="onMarkIncorrect()">
+            Incorrect
+          </button>
+        }
+        @if (loading) {
+          <div>Cargando ejemplo...</div>
+        }
+        @if (error) {
+          <div class="error">{{ error }}</div>
+        }
+        @if (card.examples && card.examples.length) {
+          <h5>Ejemplo:</h5>
+          <ul>
+            @for (ex of card.examples; track ex.spanish) {
+              <li>
+                <strong>ES:</strong> {{ ex.spanish }}
+                @if (showAnswer) {
+                  <div style="margin-top:0.5em;"><strong>EN:</strong> {{ ex.english }}</div>
+                }
+              </li>
+            }
+          </ul>
+        }
+      </mat-card-content>
+    </mat-card>
+  }
+</div>
