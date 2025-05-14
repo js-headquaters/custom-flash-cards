@@ -4,7 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build --deploy-url /custom-flash-cards/",
+    "build": "ng build  --prod --base-href /custom-flash-cards/",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "deploy": "npm run build && gh-pages -d dist/custom-flash-cards/browser"
