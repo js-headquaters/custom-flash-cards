@@ -12,6 +12,7 @@ import { AddPhraseComponent } from './components/add-phrase/add-phrase.component
 import { UploadCsvComponent } from './components/upload-csv/upload-csv.component';
 import { SettingsComponent } from './components/settings/settings.component';
 import { LibraryComponent } from './components/library/library.component';
+import { HashLocationStrategy, LocationStrategy } from '@angular/common';
 
 @NgModule({
   declarations: [AppComponent],
@@ -27,7 +28,7 @@ import { LibraryComponent } from './components/library/library.component';
     LibraryComponent,
     RouterModule.forRoot(routes),
   ],
-  providers: [],
+  providers: [{ provide: LocationStrategy, useClass: HashLocationStrategy }],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
