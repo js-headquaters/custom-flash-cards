@@ -18,6 +18,10 @@ A mobile-friendly Angular application for learning Portuguese (Brazil) phrases u
 - npm (v6 or higher)
 - OpenAI API key
 
+## Deployment
+
+Run the `npm run deploy` script
+
 ## Installation
 
 1. Clone the repository:
