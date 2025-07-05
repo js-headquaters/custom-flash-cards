@@ -42,6 +42,8 @@ export class FlashCardComponent implements OnChanges {
   }
 
   async generateExamples() {
+    return;
+
     this.loading = true;
     this.error = null;
     const apiKey = localStorage.getItem('openaiKey');

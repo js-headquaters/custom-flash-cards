@@ -1,50 +1,61 @@
 <div class="flash-card-container">
   @if (card) {
-    <mat-card>
+    <mat-card class="minimal-flash-card">
       <mat-card-header>
         <mat-card-title>
           {{ card.portuguese }}
         </mat-card-title>
       </mat-card-header>
-      <mat-card-content>
-        @if (!showAnswer) {
-          <p style="font-size: 1.5em;">
-            {{ card.portuguese }}
-          </p>
-          <button mat-button color="accent" (click)="showAnswerChange.emit(true)">
+      <mat-card-content class="card-flex-content">
+        <div class="card-main-content">
+          <div class="card-meta">
+            <div class="verbs">{{ card.verbs }}</div>
+            <div class="explanation">{{ card.explanation }}</div>
+          </div>
+          @if (showAnswer) {
+            <div class="card-answer">
+              <div class="answer-text">
+                {{ card.english }}
+              </div>
+            </div>
+          }
+          @if (loading) {
+            <div class="loading">
+              Loading example...
+            </div>
+          }
+          @if (error) {
+            <div class="error">
+              {{ error }}
+            </div>
+          }
+          @if (card.examples && card.examples.length) {
+            <div class="examples">
+              <div class="examples-title">Example:</div>
+              <ul>
+                @for (ex of card.examples; track ex.portuguese) {
+                  <li>
+                    <span class="ex-portuguese">{{ ex.portuguese }}</span>
+                    @if (showAnswer) {
+                      <span class="ex-english">{{ ex.english }}</span>
+                    }
+                  </li>
+                }
+              </ul>
+            </div>
+          }
+        </div>
+        <div class="card-actions-bottom">
+          <button mat-stroked-button color="accent" (click)="showAnswerChange.emit(true)" [hidden]="showAnswer">
             Show Answer
           </button>
-        }
-        @if (showAnswer) {
-          <p style="font-size: 1.2em; color: #666;">
-            Answer: {{ card.english }}
-          </p>
-          <button mat-button color="primary" (click)="onMarkCorrect()">
+          <button mat-stroked-button color="primary" (click)="onMarkCorrect()" [hidden]="!showAnswer">
             Correct
           </button>
-          <button mat-button color="warn" (click)="onMarkIncorrect()">
+          <button mat-stroked-button color="warn" (click)="onMarkIncorrect()" [hidden]="!showAnswer">
             Incorrect
           </button>
-        }
-        @if (loading) {
-          <div>Cargando ejemplo...</div>
-        }
-        @if (error) {
-          <div class="error">{{ error }}</div>
-        }
-        @if (card.examples && card.examples.length) {
-          <h5>Ejemplo:</h5>
-          <ul>
-            @for (ex of card.examples; track ex.portuguese) {
-              <li>
-                <strong>Portuguese (brazil):</strong> {{ ex.portuguese }}
-                @if (showAnswer) {
-                  <div style="margin-top:0.5em;"><strong>EN:</strong> {{ ex.english }}</div>
-                }
-              </li>
-            }
-          </ul>
-        }
+        </div>
       </mat-card-content>
     </mat-card>
   }

@@ -80,11 +80,15 @@ export class UploadCsvComponent {
       const rows = text.split(/\r?\n/).filter((r) => r.trim());
       let count = 0;
       for (const row of rows) {
-        const [portuguese, english] = row.split(',').map((s) => s.trim());
+        const [portuguese, english, verbs, explanation] = row
+          .split(',')
+          .map((s) => s.trim());
         if (english && portuguese) {
           await this.flashCardService.addFlashCard({
             english,
             portuguese,
+            verbs,
+            explanation,
           });
           count++;
         }

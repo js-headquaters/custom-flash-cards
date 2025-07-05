@@ -11,17 +11,26 @@ import { FlashCard } from '../../models/flash-card.interface';
       @if (loading) {
       <div>Loading...</div>
       } @if (!loading) {
-      <ul>
+      <div class="actions">
+        @if (cards.length > 0) {
+        <button class="delete-all" (click)="deleteAllCards()">
+          Delete All Cards
+        </button>
+        }
+      </div>
+      <div class="cards-container">
         @for (card of cards; track card.id) {
-        <li>
+        <div class="card">
           <span><strong>ES:</strong> {{ card.portuguese }}</span>
           <span style="margin-left: 1em;"
             ><strong>EN:</strong> {{ card.english }}</span
           >
+          <span>глаголы: {{ card.verbs }}</span>
+          <span>отметки: {{ card.explanation }}</span>
           <button (click)="deleteCard(card.id)">Delete</button>
-        </li>
+        </div>
         }
-      </ul>
+      </div>
       @if (cards.length === 0) {
       <div>No cards in your library.</div>
       } }
@@ -87,5 +96,24 @@ export class LibraryComponent implements OnInit {
   async deleteCard(id: string) {
     await this.flashCardService.deleteFlashCard(id);
     await this.loadCards();
+  }
+
+  async deleteAllCards() {
+    if (
+      confirm(
+        'Are you sure you want to delete all cards? This action cannot be undone.'
+      )
+    ) {
+      this.loading = true;
+      try {
+        await this.flashCardService.clearAll();
+        await this.loadCards();
+      } catch (error) {
+        console.error('Error deleting all cards:', error);
+        // You might want to show a user-friendly error message here
+      } finally {
+        this.loading = false;
+      }
+    }
   }
 }
