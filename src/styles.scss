@@ -25,3 +25,22 @@ body {
 .mat-mdc-button {
   margin-right: 8px;
 }
+
+@media (max-width: 600px) {
+  html, body {
+    font-size: 15px;
+    padding: 0;
+    margin: 0;
+    width: 100vw;
+    overflow-x: hidden;
+  }
+  .mat-mdc-card, .mat-card {
+    margin-bottom: 12px !important;
+    border-radius: 8px !important;
+  }
+  .mat-mdc-button, .mat-button {
+    margin-right: 4px !important;
+    font-size: 0.97rem !important;
+    padding: 0.4em 0.9em !important;
+  }
+}
