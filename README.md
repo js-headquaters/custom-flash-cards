@@ -1,10 +1,10 @@
 # Flash Cards Application
 
-A mobile-friendly Angular application for learning Spanish phrases using flash cards. The application allows users to create, import, and study flash cards with English-Spanish translations.
+A mobile-friendly Angular application for learning Portuguese (Brazil) phrases using flash cards. The application allows users to create, import, and study flash cards with English-Portuguese (Brazil) translations.
 
 ## Features
 
-- Create individual flash cards with English and Spanish phrases
+- Create individual flash cards with English and Portuguese (Brazil) phrases
 - Import flash cards from CSV files
 - Study mode with spaced repetition
 - Example generation using OpenAI API
@@ -53,15 +53,15 @@ ng serve
 3. The CSV file should have the following format:
 
 ```
-English phrase,Spanish phrase
+English phrase,Portuguese (Brazil) phrase
 Hello,Hola
 Good morning,Buenos días
 ```
 
-4. Use the "Study" page to review your flash cards. The application will show you English phrases and ask you to recall their Spanish translations.
+4. Use the "Study" page to review your flash cards. The application will show you English phrases and ask you to recall their Portuguese (Brazil) translations.
 
 5. For each card, you can:
-   - Click "Show Answer" to see the Spanish translation
+   - Click "Show Answer" to see the Portuguese (Brazil) translation
    - Click "I Know" if you remembered correctly
    - Click "I Don't Know" if you need more practice
 
