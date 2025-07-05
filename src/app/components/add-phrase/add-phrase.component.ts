@@ -39,11 +39,11 @@ import { FlashCardService } from '../../services/flash-card.service';
             />
           </mat-form-field>
           <mat-form-field>
-            <mat-label>Spanish Phrase</mat-label>
+            <mat-label>Portuguese (Brazil) Phrase</mat-label>
             <input
               matInput
-              formControlName="spanish"
-              placeholder="Enter Spanish phrase"
+              formControlName="portuguese"
+              placeholder="Enter Portuguese (Brazil) phrase"
             />
           </mat-form-field>
         </form>
@@ -77,7 +77,7 @@ export class AddPhraseComponent {
   ) {
     this.phraseForm = this.fb.group({
       english: ['', Validators.required],
-      spanish: ['', Validators.required],
+      portuguese: ['', Validators.required],
     });
   }
 

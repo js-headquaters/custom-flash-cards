@@ -1,9 +1,9 @@
 export interface FlashCard {
   id: string;
   english: string;
-  spanish: string;
+  portuguese: string;
   correctCount?: number;
   incorrectCount?: number;
   lastStudied?: Date;
-  examples?: { english: string; spanish: string }[];
+  examples?: { english: string; portuguese: string }[];
 }

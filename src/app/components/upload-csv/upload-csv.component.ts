@@ -22,7 +22,7 @@ import { FlashCardService } from '../../services/flash-card.service';
         <mat-card-title>Upload CSV</mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        <p>Upload a CSV file with English and Spanish phrases.</p>
+        <p>Upload a CSV file with English and Portuguese (Brazil) phrases.</p>
         <input
           type="file"
           accept=".csv"
@@ -80,9 +80,12 @@ export class UploadCsvComponent {
       const rows = text.split(/\r?\n/).filter((r) => r.trim());
       let count = 0;
       for (const row of rows) {
-        const [spanish, english] = row.split(',').map((s) => s.trim());
-        if (english && spanish) {
-          await this.flashCardService.addFlashCard({ english, spanish });
+        const [portuguese, english] = row.split(',').map((s) => s.trim());
+        if (english && portuguese) {
+          await this.flashCardService.addFlashCard({
+            english,
+            portuguese,
+          });
           count++;
         }
       }

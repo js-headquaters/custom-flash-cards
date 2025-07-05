@@ -3,13 +3,13 @@
     <mat-card>
       <mat-card-header>
         <mat-card-title>
-          {{ card.spanish }}
+          {{ card.portuguese }}
         </mat-card-title>
       </mat-card-header>
       <mat-card-content>
         @if (!showAnswer) {
           <p style="font-size: 1.5em;">
-            {{ card.spanish }}
+            {{ card.portuguese }}
           </p>
           <button mat-button color="accent" (click)="showAnswerChange.emit(true)">
             Show Answer
@@ -35,9 +35,9 @@
         @if (card.examples && card.examples.length) {
           <h5>Ejemplo:</h5>
           <ul>
-            @for (ex of card.examples; track ex.spanish) {
+            @for (ex of card.examples; track ex.portuguese) {
               <li>
-                <strong>ES:</strong> {{ ex.spanish }}
+                <strong>Portuguese (brazil):</strong> {{ ex.portuguese }}
                 @if (showAnswer) {
                   <div style="margin-top:0.5em;"><strong>EN:</strong> {{ ex.english }}</div>
                 }

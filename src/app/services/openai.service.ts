@@ -18,12 +18,15 @@ export class OpenAIService {
     return this.openai;
   }
 
-  async generateFlashCard(english: string, spanish: string): Promise<string> {
+  async generateFlashCard(
+    english: string,
+    portuguese: string
+  ): Promise<string> {
     const client = await this.getClient();
     // Example: Use OpenAI to generate a hint or example sentence
     const response = await client.createCompletion({
       model: 'text-davinci-003',
-      prompt: `Create a helpful hint for learning this English-Spanish pair: "${english}" - "${spanish}"`,
+      prompt: `Create a helpful hint for learning this English-Portuguese (Brazil) pair: "${english}" - "${portuguese}"`,
       max_tokens: 60,
     });
     return response.data.choices?.[0]?.text?.trim() || '';

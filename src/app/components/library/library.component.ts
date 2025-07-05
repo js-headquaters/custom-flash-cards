@@ -14,7 +14,7 @@ import { FlashCard } from '../../models/flash-card.interface';
       <ul>
         @for (card of cards; track card.id) {
         <li>
-          <span><strong>ES:</strong> {{ card.spanish }}</span>
+          <span><strong>ES:</strong> {{ card.portuguese }}</span>
           <span style="margin-left: 1em;"
             ><strong>EN:</strong> {{ card.english }}</span
           >

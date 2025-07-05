@@ -54,22 +54,22 @@ export class FlashCardComponent implements OnChanges {
       // Define the function for OpenAI function calling
       const functions = [
         {
-          name: 'generate_spanish_example',
+          name: 'generate_portuguese_brazil_example',
           description:
-            'Generate a Spanish example sentence using the given phrase and provide its English translation.',
+            'Generate a Portuguese (Brazil) example sentence using the given phrase and provide its English translation.',
           parameters: {
             type: 'object',
             properties: {
-              spanish: {
+              portuguese: {
                 type: 'string',
-                description: 'The example sentence in Spanish.',
+                description: 'The example sentence in Portuguese(brazil).',
               },
               english: {
                 type: 'string',
                 description: 'The English translation of the example sentence.',
               },
             },
-            required: ['spanish', 'english'],
+            required: ['portuguese', 'english'],
           },
         },
       ];
@@ -80,7 +80,7 @@ export class FlashCardComponent implements OnChanges {
         },
         {
           role: 'user',
-          content: `Generate a Spanish example sentence using the phrase: "${this.card.spanish}" and provide its English translation.`,
+          content: `Generate a Portuguese (Brazil) example sentence using the phrase: "${this.card.portuguese}" and provide its English translation.`,
         },
       ];
       const response = await fetch(
@@ -95,21 +95,21 @@ export class FlashCardComponent implements OnChanges {
             model: 'gpt-3.5-turbo-1106',
             messages,
             functions,
-            function_call: { name: 'generate_spanish_example' },
+            function_call: { name: 'generate_portuguese_brazil_example' },
             temperature: 0.7,
           }),
         }
       );
       const data = await response.json();
       const functionCall = data.choices?.[0]?.message?.function_call;
-      let examples: { english: string; spanish: string }[] = [];
+      let examples: { english: string; portuguese: string }[] = [];
       if (functionCall && functionCall.arguments) {
         try {
           const args = JSON.parse(functionCall.arguments);
           examples = [
             {
               english: decodeUnicode(args.english),
-              spanish: decodeUnicode(args.spanish),
+              portuguese: decodeUnicode(args.portuguese),
             },
           ];
         } catch {
