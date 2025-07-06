@@ -1,118 +1,463 @@
 import { Component, OnInit } from '@angular/core';
 import { FlashCardService } from '../../services/flash-card.service';
+import { CategoryService } from '../../services/category.service';
 import { FlashCard } from '../../models/flash-card.interface';
+import { Category } from '../../models/category.interface';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-library',
   standalone: true,
+  imports: [MatFormFieldModule, MatInputModule, FormsModule, DatePipe],
   template: `
     <div class="library-container">
       <h2>Library</h2>
       @if (loading) {
       <div>Loading...</div>
-      } @if (!loading) {
-      <div class="actions">
-        @if (cards.length > 0) {
-        <button class="delete-all" (click)="deleteAllCards()">
-          Delete All Cards
-        </button>
-        }
-      </div>
-      <div class="cards-container">
-        @for (card of cards; track card.id) {
-        <div class="card">
-          <span><strong>ES:</strong> {{ card.portuguese }}</span>
-          <span style="margin-left: 1em;"
-            ><strong>EN:</strong> {{ card.english }}</span
-          >
-          <span>глаголы: {{ card.verbs }}</span>
-          <span>отметки: {{ card.explanation }}</span>
-          <button (click)="deleteCard(card.id)">Delete</button>
+      } @else { @if (viewMode === 'categories') {
+      <div class="categories-container">
+        <!-- Создание новой категории -->
+        <div class="create-category-section">
+          <h3>Create New Category</h3>
+          <div class="create-category-form">
+            <input
+              type="text"
+              [(ngModel)]="newCategoryName"
+              placeholder="Enter category name"
+              class="category-input"
+              (keyup.enter)="createCategory()"
+            />
+            <button
+              class="create-btn"
+              (click)="createCategory()"
+              [disabled]="!newCategoryName.trim()"
+            >
+              Create Category
+            </button>
+          </div>
         </div>
-        }
+
+        <!-- Список категорий -->
+        <div class="categories-list">
+          <h3>Your Categories</h3>
+          @for (category of categories; track category.id) {
+          <div class="category-card">
+            <div class="category-info">
+              <h4>{{ category.name }}</h4>
+              <p>{{ category.wordCount }} words</p>
+              <p class="category-date">
+                Created: {{ category.createdAt | date : 'short' }}
+              </p>
+            </div>
+            <div class="category-actions">
+              <button class="view-btn" (click)="viewCategory(category.id)">
+                View Words
+              </button>
+              <button class="delete-btn" (click)="deleteCategory(category.id)">
+                Delete Category
+              </button>
+            </div>
+          </div>
+          } @if (categories.length === 0) {
+          <div class="empty-state">
+            <p>No categories in your library.</p>
+            <p>Create your first category above or upload a CSV file!</p>
+          </div>
+          }
+        </div>
       </div>
-      @if (cards.length === 0) {
-      <div>No cards in your library.</div>
+      } @if (viewMode === 'words') {
+      <div class="words-container">
+        <div class="header-actions">
+          <button class="back-btn" (click)="backToCategories()">
+            ← Back to Categories
+          </button>
+          @if (categoryWords.length > 0) {
+          <button class="delete-all-btn" (click)="deleteAllWordsInCategory()">
+            Delete All Words
+          </button>
+          }
+        </div>
+
+        <h3>{{ currentCategory?.name }} - Words</h3>
+
+        <div class="words-list">
+          @for (card of categoryWords; track card.id) {
+          <div class="word-card">
+            <div class="word-info">
+              <span><strong>PT:</strong> {{ card.portuguese }}</span>
+              <span><strong>EN:</strong> {{ card.english }}</span>
+              <span><strong>Verbs:</strong> {{ card.verbs }}</span>
+              <span><strong>Notes:</strong> {{ card.explanation }}</span>
+            </div>
+            <button class="delete-word-btn" (click)="deleteWord(card.id)">
+              Delete
+            </button>
+          </div>
+          } @if (categoryWords.length === 0) {
+          <div class="empty-state">
+            <p>No words in this category.</p>
+          </div>
+          }
+        </div>
+      </div>
       } }
     </div>
   `,
   styles: [
     `
       .library-container {
-        max-width: 600px;
+        max-width: 800px;
         margin: 0 auto;
         padding: 2rem;
         background: #fff;
         border-radius: 8px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
       }
+
       h2 {
         text-align: center;
         margin-bottom: 1.5rem;
+        color: #333;
       }
-      ul {
-        list-style: none;
-        padding: 0;
+
+      h3 {
+        margin-bottom: 1rem;
+        color: #444;
       }
-      li {
+
+      .create-category-section {
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid #e0e0e0;
+      }
+
+      .create-category-form {
         display: flex;
+        gap: 1rem;
         align-items: center;
-        justify-content: space-between;
-        padding: 0.5rem 0;
-        border-bottom: 1px solid #eee;
       }
-      button {
-        background: #d32f2f;
+
+      .category-input {
+        flex: 1;
+        padding: 0.8rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 1rem;
+      }
+
+      .create-btn {
+        background: #4caf50;
         color: #fff;
         border: none;
         border-radius: 4px;
-        padding: 0.3rem 1rem;
+        padding: 0.8rem 1.5rem;
         cursor: pointer;
         font-weight: 500;
-        margin-left: 1em;
+        font-size: 1rem;
       }
-      button:hover {
+
+      .create-btn:hover:not(:disabled) {
+        background: #45a049;
+      }
+
+      .create-btn:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+
+      .categories-container {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .categories-list {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .category-card {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        background: #fafafa;
+        margin-bottom: 1rem;
+      }
+
+      .category-info h4 {
+        margin: 0 0 0.5rem 0;
+        color: #333;
+      }
+
+      .category-info p {
+        margin: 0.2rem 0;
+        color: #666;
+      }
+
+      .category-date {
+        font-size: 0.9rem;
+        color: #888;
+      }
+
+      .category-actions {
+        display: flex;
+        gap: 0.5rem;
+      }
+
+      .header-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+      }
+
+      .words-container {
+        margin-top: 1rem;
+      }
+
+      .words-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .word-card {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.8rem;
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+        background: #fff;
+      }
+
+      .word-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+      }
+
+      .word-info span {
+        font-size: 0.9rem;
+      }
+
+      button {
+        border: none;
+        border-radius: 4px;
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+        font-weight: 500;
+        font-size: 0.9rem;
+      }
+
+      .view-btn {
+        background: #1976d2;
+        color: #fff;
+      }
+
+      .view-btn:hover {
+        background: #1565c0;
+      }
+
+      .back-btn {
+        background: #666;
+        color: #fff;
+      }
+
+      .back-btn:hover {
+        background: #555;
+      }
+
+      .delete-btn,
+      .delete-word-btn {
+        background: #d32f2f;
+        color: #fff;
+      }
+
+      .delete-btn:hover,
+      .delete-word-btn:hover {
         background: #b71c1c;
+      }
+
+      .delete-all-btn {
+        background: #f57c00;
+        color: #fff;
+      }
+
+      .delete-all-btn:hover {
+        background: #e65100;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 2rem;
+        color: #666;
+      }
+
+      .empty-state p {
+        margin: 0.5rem 0;
+      }
+
+      @media (max-width: 600px) {
+        .create-category-form {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .category-card {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 1rem;
+        }
+
+        .category-actions {
+          justify-content: center;
+        }
       }
     `,
   ],
 })
 export class LibraryComponent implements OnInit {
-  cards: FlashCard[] = [];
+  categories: Category[] = [];
+  categoryWords: FlashCard[] = [];
+  currentCategory: Category | null = null;
+  viewMode: 'categories' | 'words' = 'categories';
   loading = false;
+  newCategoryName: string = '';
 
-  constructor(private flashCardService: FlashCardService) {}
+  constructor(
+    private flashCardService: FlashCardService,
+    private categoryService: CategoryService
+  ) {}
 
   async ngOnInit() {
-    await this.loadCards();
+    console.log('LibraryComponent ngOnInit');
+    await this.loadCategories();
   }
 
-  async loadCards() {
+  async loadCategories() {
     this.loading = true;
-    this.cards = await this.flashCardService.getAllFlashCards();
+    try {
+      console.log('Loading categories...');
+      this.categories = await this.categoryService.getAllCategories();
+      console.log('Categories loaded:', this.categories);
+    } catch (error) {
+      console.error('Error loading categories:', error);
+    } finally {
+      this.loading = false;
+      console.log('Loading set to false');
+    }
+  }
+
+  async createCategory() {
+    if (!this.newCategoryName.trim()) return;
+
+    try {
+      await this.categoryService.addCategory(this.newCategoryName.trim());
+      this.newCategoryName = '';
+      await this.loadCategories();
+    } catch (error) {
+      console.error('Error creating category:', error);
+    }
+  }
+
+  async viewCategory(categoryId: string) {
+    this.loading = true;
+    this.currentCategory =
+      this.categories.find((c) => c.id === categoryId) || null;
+    this.categoryWords = await this.flashCardService.getFlashCardsByCategory(
+      categoryId
+    );
+    this.viewMode = 'words';
     this.loading = false;
   }
 
-  async deleteCard(id: string) {
-    await this.flashCardService.deleteFlashCard(id);
-    await this.loadCards();
+  backToCategories() {
+    this.viewMode = 'categories';
+    this.currentCategory = null;
+    this.categoryWords = [];
   }
 
-  async deleteAllCards() {
+  async deleteWord(id: string) {
+    if (confirm('Are you sure you want to delete this word?')) {
+      await this.flashCardService.deleteFlashCard(id);
+      if (this.currentCategory) {
+        this.categoryWords =
+          await this.flashCardService.getFlashCardsByCategory(
+            this.currentCategory.id
+          );
+        await this.categoryService.updateWordCount(
+          this.currentCategory.id,
+          this.categoryWords.length
+        );
+      }
+    }
+  }
+
+  async deleteAllWordsInCategory() {
+    if (!this.currentCategory) return;
+
     if (
       confirm(
-        'Are you sure you want to delete all cards? This action cannot be undone.'
+        `Are you sure you want to delete all words in "${this.currentCategory.name}" category?`
       )
     ) {
       this.loading = true;
       try {
-        await this.flashCardService.clearAll();
-        await this.loadCards();
+        await this.flashCardService.deleteFlashCardsByCategory(
+          this.currentCategory.id
+        );
+        this.categoryWords = [];
+        await this.categoryService.updateWordCount(this.currentCategory.id, 0);
+        await this.loadCategories(); // Обновляем список категорий
       } catch (error) {
-        console.error('Error deleting all cards:', error);
-        // You might want to show a user-friendly error message here
+        console.error('Error deleting all words:', error);
       } finally {
         this.loading = false;
+      }
+    }
+  }
+
+  async deleteCategory(id: string) {
+    const category = this.categories.find((c) => c.id === id);
+    if (!category) return;
+
+    if (category.wordCount > 0) {
+      if (
+        confirm(
+          `Category "${category.name}" contains ${category.wordCount} words. Delete category and all its words?`
+        )
+      ) {
+        this.loading = true;
+        try {
+          await this.flashCardService.deleteFlashCardsByCategory(id);
+          await this.categoryService.deleteCategory(id);
+          await this.loadCategories();
+        } catch (error) {
+          console.error('Error deleting category:', error);
+        } finally {
+          this.loading = false;
+        }
+      }
+    } else {
+      if (
+        confirm(`Are you sure you want to delete "${category.name}" category?`)
+      ) {
+        this.loading = true;
+        try {
+          await this.categoryService.deleteCategory(id);
+          await this.loadCategories();
+        } catch (error) {
+          console.error('Error deleting category:', error);
+        } finally {
+          this.loading = false;
+        }
       }
     }
   }

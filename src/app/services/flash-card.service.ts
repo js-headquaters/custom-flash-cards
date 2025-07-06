@@ -17,9 +17,26 @@ export class FlashCardService {
   private dbPromise: Promise<IDBPDatabase<FlashCardDB>>;
 
   constructor() {
-    this.dbPromise = openDB<FlashCardDB>('flash-card-db', 1, {
-      upgrade(db) {
-        db.createObjectStore('flashcards', { keyPath: 'id' });
+    this.dbPromise = openDB<FlashCardDB>('flash-card-db', 2, {
+      upgrade(db, oldVersion) {
+        if (oldVersion < 1) {
+          db.createObjectStore('flashcards', { keyPath: 'id' });
+        }
+        if (oldVersion < 2) {
+          // Обновляем существующие карточки, добавляя categoryId
+          const transaction = db.transaction('flashcards', 'readwrite');
+          const store = transaction.objectStore('flashcards');
+          store.openCursor().then(function (cursor) {
+            if (cursor) {
+              const card = cursor.value;
+              if (!card.categoryId) {
+                card.categoryId = 'default'; // Временная категория для существующих карточек
+                cursor.update(card);
+              }
+              cursor.continue();
+            }
+          });
+        }
       },
     });
   }
@@ -34,6 +51,12 @@ export class FlashCardService {
     return db.getAll('flashcards');
   }
 
+  async getFlashCardsByCategory(categoryId: string): Promise<FlashCard[]> {
+    const db = await this.dbPromise;
+    const allCards = await db.getAll('flashcards');
+    return allCards.filter((card) => card.categoryId === categoryId);
+  }
+
   async clearAll(): Promise<void> {
     const db = await this.dbPromise;
     await db.clear('flashcards');
@@ -42,5 +65,17 @@ export class FlashCardService {
   async deleteFlashCard(id: string): Promise<void> {
     const db = await this.dbPromise;
     await db.delete('flashcards', id);
+  }
+
+  async deleteFlashCardsByCategory(categoryId: string): Promise<void> {
+    const db = await this.dbPromise;
+    const allCards = await db.getAll('flashcards');
+    const cardsToDelete = allCards.filter(
+      (card) => card.categoryId === categoryId
+    );
+
+    for (const card of cardsToDelete) {
+      await db.delete('flashcards', card.id);
+    }
   }
 }

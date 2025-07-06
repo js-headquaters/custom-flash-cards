@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { MigrationService } from './services/migration.service';
 
 @Component({
   selector: 'app-root',
@@ -68,15 +69,18 @@ import { Component } from '@angular/core';
         display: flex;
         justify-content: center;
         margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
       }
       .nav-bar a {
         text-decoration: none;
         color: #333;
         font-weight: 500;
-        font-size: 1.1rem;
+        font-size: 1rem;
         padding-bottom: 2px;
         border-bottom: 2px solid transparent;
         transition: border-color 0.2s;
+        white-space: nowrap;
       }
       .nav-bar a.active {
         border-bottom: 2px solid #1976d2;
@@ -127,9 +131,16 @@ import { Component } from '@angular/core';
     `,
   ],
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   title = 'custom-flash-cards';
   isMobileMenuOpen = false;
+
+  constructor(private migrationService: MigrationService) {}
+
+  async ngOnInit() {
+    // Запускаем миграцию при инициализации приложения
+    await this.migrationService.checkAndMigrate();
+  }
 
   toggleMenu() {
     this.isMobileMenuOpen = !this.isMobileMenuOpen;
