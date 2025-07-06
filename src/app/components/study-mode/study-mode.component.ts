@@ -45,6 +45,10 @@ function shuffle<T>(array: T[]): T[] {
       </mat-card-header>
       <mat-card-content>
         <p>Select a category to start studying your flash cards.</p>
+        <p>
+          <strong>Note:</strong> Words with lower progress will be shown first
+          to help you focus on what you know less well.
+        </p>
 
         <mat-form-field
           appearance="outline"
@@ -83,6 +87,10 @@ function shuffle<T>(array: T[]): T[] {
           Ready to study {{ cards.length }} cards from "{{
             selectedCategory?.name
           }}" category.
+        </p>
+        <p>
+          <strong>Study order:</strong> Words with lower progress will be shown
+          first.
         </p>
       </mat-card-content>
       <mat-card-actions>
@@ -173,9 +181,11 @@ export class StudyModeComponent {
       this.categories.find((c) => c.id === this.selectedCategoryId) || null;
     if (!this.selectedCategory) return;
 
-    const categoryCards = await this.flashCardService.getFlashCardsByCategory(
-      this.selectedCategoryId
-    );
+    // Используем сортировку по прогрессу - сначала слова с меньшим прогрессом
+    const categoryCards =
+      await this.flashCardService.getFlashCardsByCategorySortedByProgress(
+        this.selectedCategoryId
+      );
     this.cards = categoryCards;
     this.categorySelected = true;
   }
@@ -193,12 +203,12 @@ export class StudyModeComponent {
 
   async startStudying() {
     if (this.cards.length === 0) {
-      const categoryCards = await this.flashCardService.getFlashCardsByCategory(
-        this.selectedCategoryId
-      );
-      this.cards = shuffle([...categoryCards]);
-    } else {
-      this.cards = shuffle([...this.cards]);
+      // Перезагружаем карточки с сортировкой по прогрессу
+      const categoryCards =
+        await this.flashCardService.getFlashCardsByCategorySortedByProgress(
+          this.selectedCategoryId
+        );
+      this.cards = categoryCards;
     }
 
     this.currentIndex = 0;
@@ -207,11 +217,20 @@ export class StudyModeComponent {
     this.showEnglish = false;
   }
 
-  markCorrect() {
+  async markCorrect() {
+    if (this.currentCard) {
+      await this.flashCardService.updateCardProgress(this.currentCard.id, true);
+    }
     this.nextCard();
   }
 
-  markIncorrect() {
+  async markIncorrect() {
+    if (this.currentCard) {
+      await this.flashCardService.updateCardProgress(
+        this.currentCard.id,
+        false
+      );
+    }
     this.nextCard();
   }
 
@@ -221,10 +240,15 @@ export class StudyModeComponent {
     this.showEnglish = false;
   }
 
-  restart() {
+  async restart() {
+    // Перезагружаем карточки с обновленной сортировкой по прогрессу
+    const categoryCards =
+      await this.flashCardService.getFlashCardsByCategorySortedByProgress(
+        this.selectedCategoryId
+      );
+    this.cards = categoryCards;
     this.currentIndex = 0;
     this.showAnswer = false;
     this.showEnglish = false;
-    this.cards = shuffle([...this.cards]);
   }
 }

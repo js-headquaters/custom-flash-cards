@@ -5,6 +5,14 @@
         <mat-card-title>
           {{ card.portuguese }}
         </mat-card-title>
+        <mat-card-subtitle>
+          <div class="progress-info">
+            <span class="progress-text">Progress: {{ (card.progress || 0) | number:'1.0-0' }}%</span>
+            <div class="progress-bar-container">
+              <div class="progress-bar" [style.width.%]="card.progress || 0"></div>
+            </div>
+          </div>
+        </mat-card-subtitle>
       </mat-card-header>
       <mat-card-content class="card-flex-content">
         <div class="card-main-content">

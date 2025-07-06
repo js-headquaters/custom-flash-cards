@@ -6,12 +6,18 @@ import { Category } from '../../models/category.interface';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
-import { DatePipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 
 @Component({
   selector: 'app-library',
   standalone: true,
-  imports: [MatFormFieldModule, MatInputModule, FormsModule, DatePipe],
+  imports: [
+    MatFormFieldModule,
+    MatInputModule,
+    FormsModule,
+    DatePipe,
+    DecimalPipe,
+  ],
   template: `
     <div class="library-container">
       <h2>Library</h2>
@@ -92,6 +98,17 @@ import { DatePipe } from '@angular/common';
               <span><strong>EN:</strong> {{ card.english }}</span>
               <span><strong>Verbs:</strong> {{ card.verbs }}</span>
               <span><strong>Notes:</strong> {{ card.explanation }}</span>
+              <div class="word-progress">
+                <span class="progress-text"
+                  >Progress: {{ card.progress || 0 | number : '1.0-0' }}%</span
+                >
+                <div class="progress-bar-container">
+                  <div
+                    class="progress-bar"
+                    [style.width.%]="card.progress || 0"
+                  ></div>
+                </div>
+              </div>
             </div>
             <button class="delete-word-btn" (click)="deleteWord(card.id)">
               Delete
@@ -247,6 +264,34 @@ import { DatePipe } from '@angular/common';
         font-size: 0.9rem;
       }
 
+      .word-progress {
+        margin-top: 0.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+      }
+
+      .progress-text {
+        font-size: 0.8rem;
+        color: #666;
+        font-weight: 500;
+      }
+
+      .progress-bar-container {
+        width: 100%;
+        height: 4px;
+        background-color: #e0e0e0;
+        border-radius: 2px;
+        overflow: hidden;
+      }
+
+      .progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #4caf50, #8bc34a);
+        border-radius: 2px;
+        transition: width 0.3s ease;
+      }
+
       button {
         border: none;
         border-radius: 4px;
@@ -342,16 +387,22 @@ export class LibraryComponent implements OnInit {
   }
 
   async loadCategories() {
+    console.log('LibraryComponent: Starting to load categories...');
     this.loading = true;
     try {
-      console.log('Loading categories...');
+      console.log(
+        'LibraryComponent: Calling categoryService.getAllCategories()...'
+      );
       this.categories = await this.categoryService.getAllCategories();
-      console.log('Categories loaded:', this.categories);
+      console.log(
+        'LibraryComponent: Categories loaded successfully:',
+        this.categories
+      );
     } catch (error) {
-      console.error('Error loading categories:', error);
+      console.error('LibraryComponent: Error loading categories:', error);
     } finally {
       this.loading = false;
-      console.log('Loading set to false');
+      console.log('LibraryComponent: Loading completed, loading = false');
     }
   }
 
@@ -368,14 +419,30 @@ export class LibraryComponent implements OnInit {
   }
 
   async viewCategory(categoryId: string) {
+    console.log('LibraryComponent: Viewing category', categoryId);
     this.loading = true;
-    this.currentCategory =
-      this.categories.find((c) => c.id === categoryId) || null;
-    this.categoryWords = await this.flashCardService.getFlashCardsByCategory(
-      categoryId
-    );
-    this.viewMode = 'words';
-    this.loading = false;
+    try {
+      this.currentCategory =
+        this.categories.find((c) => c.id === categoryId) || null;
+      console.log('LibraryComponent: Current category:', this.currentCategory);
+
+      console.log('LibraryComponent: Getting flash cards for category...');
+      this.categoryWords = await this.flashCardService.getFlashCardsByCategory(
+        categoryId
+      );
+      console.log(
+        'LibraryComponent: Flash cards loaded:',
+        this.categoryWords.length,
+        'cards'
+      );
+
+      this.viewMode = 'words';
+    } catch (error) {
+      console.error('LibraryComponent: Error viewing category:', error);
+    } finally {
+      this.loading = false;
+      console.log('LibraryComponent: View category completed, loading = false');
+    }
   }
 
   backToCategories() {

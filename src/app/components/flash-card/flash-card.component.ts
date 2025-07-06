@@ -9,6 +9,7 @@ import {
 import { FlashCard } from '../../models/flash-card.interface';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
+import { DecimalPipe } from '@angular/common';
 
 function decodeUnicode(str: string): string {
   // Decodes unicode escape sequences like \u00ed
@@ -20,7 +21,7 @@ function decodeUnicode(str: string): string {
 @Component({
   selector: 'app-flash-card',
   standalone: true,
-  imports: [MatCardModule, MatButtonModule],
+  imports: [MatCardModule, MatButtonModule, DecimalPipe],
   templateUrl: './flash-card.component.html',
   styleUrl: './flash-card.component.scss',
 })

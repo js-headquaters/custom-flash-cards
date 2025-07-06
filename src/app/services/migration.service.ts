@@ -22,13 +22,28 @@ export class MigrationService {
   private dbPromise: Promise<IDBPDatabase<MigrationDB>>;
 
   constructor() {
-    this.dbPromise = openDB<MigrationDB>('flash-card-db', 2, {
+    this.dbPromise = openDB<MigrationDB>('flash-card-db', 3, {
       upgrade(db, oldVersion) {
         if (oldVersion < 1) {
           db.createObjectStore('flashcards', { keyPath: 'id' });
         }
         if (oldVersion < 2) {
           db.createObjectStore('categories', { keyPath: 'id' });
+        }
+        if (oldVersion < 3) {
+          // Обновляем существующие карточки, добавляя progress
+          const transaction = db.transaction('flashcards', 'readwrite');
+          const store = transaction.objectStore('flashcards');
+          store.openCursor().then(function (cursor) {
+            if (cursor) {
+              const card = cursor.value;
+              if (card.progress === undefined) {
+                card.progress = 0; // По умолчанию прогресс 0
+                cursor.update(card);
+              }
+              cursor.continue();
+            }
+          });
         }
       },
     });

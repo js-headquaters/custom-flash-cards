@@ -9,4 +9,5 @@ export interface FlashCard {
   incorrectCount?: number;
   lastStudied?: Date;
   examples?: { english: string; portuguese: string }[];
+  progress?: number;
 }
