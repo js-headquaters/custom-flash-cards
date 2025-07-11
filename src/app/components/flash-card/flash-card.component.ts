@@ -10,6 +10,8 @@ import { FlashCard } from '../../models/flash-card.interface';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { DecimalPipe } from '@angular/common';
+import { OpenaiService, RollPhrase } from '../../services/openai.service';
+import { RollPopupComponent } from '../roll-popup/roll-popup.component';
 
 function decodeUnicode(str: string): string {
   // Decodes unicode escape sequences like \u00ed
@@ -21,7 +23,7 @@ function decodeUnicode(str: string): string {
 @Component({
   selector: 'app-flash-card',
   standalone: true,
-  imports: [MatCardModule, MatButtonModule, DecimalPipe],
+  imports: [MatCardModule, MatButtonModule, DecimalPipe, RollPopupComponent],
   templateUrl: './flash-card.component.html',
   styleUrl: './flash-card.component.scss',
 })
@@ -35,6 +37,12 @@ export class FlashCardComponent implements OnChanges {
 
   loading = false;
   error: string | null = null;
+  showRollPopup = false;
+  currentRollPhrase: RollPhrase | null = null;
+  rollLoading = false;
+  generatedPhrases: RollPhrase[] = [];
+
+  constructor(private openaiService: OpenaiService) {}
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['card'] && this.card && !this.card.examples) {
@@ -71,8 +79,18 @@ export class FlashCardComponent implements OnChanges {
                 type: 'string',
                 description: 'The English translation of the example sentence.',
               },
+              verbs: {
+                type: 'string',
+                description:
+                  'The verbs in the example sentence, все глаголы через запятую. Пример: [ir assistir].',
+              },
+              tense: {
+                type: 'string',
+                description:
+                  'The tense of the example sentence in russian like будущее время, прошлое, настоящее.',
+              },
             },
-            required: ['portuguese', 'english'],
+            required: ['portuguese', 'english', 'verbs', 'tense'],
           },
         },
       ];
@@ -136,10 +154,44 @@ export class FlashCardComponent implements OnChanges {
   }
 
   onMarkCorrect() {
+    this.showRollPopup = false;
+    this.currentRollPhrase = null;
+    this.generatedPhrases = []; // Clear history for next card
     this.markCorrect.emit();
   }
 
   onMarkIncorrect() {
+    this.showRollPopup = false;
+    this.currentRollPhrase = null;
+    this.generatedPhrases = []; // Clear history for next card
     this.markIncorrect.emit();
+  }
+
+  async onRoll() {
+    if (!this.card) return;
+
+    this.rollLoading = true;
+    try {
+      const newPhrase = await this.openaiService.generateRollPhrase(
+        this.card.portuguese,
+        this.card.english,
+        this.generatedPhrases
+      );
+
+      // Add the new phrase to history
+      this.generatedPhrases.push(newPhrase);
+      this.currentRollPhrase = newPhrase;
+      this.showRollPopup = true;
+    } catch (err: any) {
+      this.error = err.message || 'Failed to generate modified phrase.';
+    } finally {
+      this.rollLoading = false;
+    }
+  }
+
+  onRollPopupClose() {
+    this.showRollPopup = false;
+    this.currentRollPhrase = null;
+    this.generatedPhrases = []; // Clear history when closing popup
   }
 }

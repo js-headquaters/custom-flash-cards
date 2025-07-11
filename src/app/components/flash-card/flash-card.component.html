@@ -63,8 +63,25 @@
           <button mat-stroked-button color="warn" (click)="onMarkIncorrect()" [hidden]="!showAnswer">
             Incorrect
           </button>
+          <button 
+            mat-stroked-button 
+            color="accent" 
+            (click)="onRoll()" 
+            [disabled]="rollLoading"
+            [hidden]="!showAnswer">
+            {{ rollLoading ? 'Rolling...' : 'Roll' }}
+          </button>
         </div>
       </mat-card-content>
     </mat-card>
+  }
+
+  @if (showRollPopup && currentRollPhrase) {
+    <app-roll-popup 
+      [phrase]="currentRollPhrase" 
+      [loading]="rollLoading"
+      (close)="onRollPopupClose()"
+      (roll)="onRoll()">
+    </app-roll-popup>
   }
 </div>
