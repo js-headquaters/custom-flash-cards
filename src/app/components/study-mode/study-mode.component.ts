@@ -25,6 +25,36 @@ function shuffle<T>(array: T[]): T[] {
   return array;
 }
 
+function shuffleByProgress(cards: FlashCard[]): FlashCard[] {
+  // Группируем карточки по прогрессу
+  const progressGroups: { [key: string]: FlashCard[] } = {};
+
+  cards.forEach((card) => {
+    const progress = card.progress || 0;
+    if (!progressGroups[progress]) {
+      progressGroups[progress] = [];
+    }
+    progressGroups[progress].push(card);
+  });
+
+  // Перемешиваем карточки внутри каждой группы прогресса
+  Object.keys(progressGroups).forEach((progress) => {
+    progressGroups[progress] = shuffle(progressGroups[progress]);
+  });
+
+  // Собираем карточки обратно в порядке возрастания прогресса
+  const sortedProgresses = Object.keys(progressGroups)
+    .map((p) => parseFloat(p))
+    .sort((a, b) => a - b);
+
+  const result: FlashCard[] = [];
+  sortedProgresses.forEach((progress) => {
+    result.push(...progressGroups[progress]);
+  });
+
+  return result;
+}
+
 @Component({
   selector: 'app-study-mode',
   standalone: true,
@@ -186,7 +216,8 @@ export class StudyModeComponent {
       await this.flashCardService.getFlashCardsByCategorySortedByProgress(
         this.selectedCategoryId
       );
-    this.cards = categoryCards;
+
+    this.cards = shuffleByProgress(categoryCards);
     this.categorySelected = true;
   }
 
@@ -208,7 +239,8 @@ export class StudyModeComponent {
         await this.flashCardService.getFlashCardsByCategorySortedByProgress(
           this.selectedCategoryId
         );
-      this.cards = categoryCards;
+
+      this.cards = shuffleByProgress(categoryCards);
     }
 
     this.currentIndex = 0;
@@ -246,7 +278,8 @@ export class StudyModeComponent {
       await this.flashCardService.getFlashCardsByCategorySortedByProgress(
         this.selectedCategoryId
       );
-    this.cards = categoryCards;
+
+    this.cards = shuffleByProgress(categoryCards);
     this.currentIndex = 0;
     this.showAnswer = false;
     this.showEnglish = false;
