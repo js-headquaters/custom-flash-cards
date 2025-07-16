@@ -194,4 +194,11 @@ export class FlashCardComponent implements OnChanges {
     this.currentRollPhrase = null;
     this.generatedPhrases = []; // Clear history when closing popup
   }
+
+  onContinue() {
+    this.showRollPopup = false;
+    this.currentRollPhrase = null;
+    this.generatedPhrases = []; // Clear history for next card
+    this.markCorrect.emit();
+  }
 }

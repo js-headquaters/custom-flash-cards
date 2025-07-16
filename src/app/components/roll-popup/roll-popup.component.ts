@@ -39,7 +39,10 @@ import { RollPhrase } from '../../services/openai.service';
           >
             {{ loading ? 'Rolling...' : 'Roll' }}
           </button>
-          <button mat-button color="primary" (click)="onClose()">Close</button>
+          <button mat-button color="primary" (click)="onContinue()">
+            Continue
+          </button>
+          <button mat-button (click)="onClose()">Close</button>
         </mat-card-actions>
       </mat-card>
     </div>
@@ -109,6 +112,7 @@ export class RollPopupComponent {
   @Input() loading = false;
   @Output() close = new EventEmitter<void>();
   @Output() roll = new EventEmitter<void>();
+  @Output() continue = new EventEmitter<void>();
 
   onClose() {
     this.close.emit();
@@ -116,6 +120,10 @@ export class RollPopupComponent {
 
   onRoll() {
     this.roll.emit();
+  }
+
+  onContinue() {
+    this.continue.emit();
   }
 
   onOverlayClick(event: Event) {
