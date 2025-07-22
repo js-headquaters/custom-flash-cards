@@ -79,13 +79,13 @@ export class OpenaiService {
           {
             role: 'system',
             content:
-              'You are a helpful assistant for language learners. Generate a modified version of the given Portuguese phrase by changing one or a few word, and provide its Russian translation. The modification should be natural and grammatically correct. IMPORTANT: Do not repeat any phrases that have already been generated. Also provide the verbs used in the phrase and the grammatical tense.',
+              'You are a helpful assistant for language learners. Generate a modified meaningful common conversational version of the given Portuguese phrase by changing one or a few word, and provide its Russian translation. The modification should be natural and grammatically correct. IMPORTANT: Do not repeat any phrases that have already been generated. Also provide the verbs used in the phrase and the grammatical tense.',
           },
           {
             role: 'user',
             content: `Original Portuguese: "${originalPortuguese}"
 
-Generate a modified version by changing one or a few meaningful words (maybe with prepositions, like change "Eu" to "A gente" or vice versa or the main noun (like change "eu" to "segurança") and changing according verb) or change the tense from present to past or conversational future (ir + infinitive) or use antonyms (avoid using synonyms) in the Portuguese phrase and provide its Russian translation. Ensure that the modified phrase is not the same as the original phrase. Also identify the verbs used and the grammatical tense. Use the verb in the correct form for the tense with the correct conjugation.${existingPhrasesText}`,
+Generate a modified conversational common meaningful version by changing one or a few meaningful words (maybe with prepositions, like change "Eu" to "A gente" or vice versa or the main noun (like change "eu" to "segurança") and changing according verb) or change the tense from present to past or conversational future (ir + infinitive) or use antonyms (avoid using synonyms, avoid using "NO/NAO") in the Portuguese phrase and provide its Russian translation. Ensure that the modified phrase is not the same as the original phrase. Also identify the verbs used and the grammatical tense. Use the verb in the correct form for the tense with the correct conjugation.${existingPhrasesText}`,
           },
         ];
 

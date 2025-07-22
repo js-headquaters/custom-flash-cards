@@ -41,6 +41,9 @@ export class FlashCardComponent implements OnChanges {
   currentRollPhrase: RollPhrase | null = null;
   rollLoading = false;
   generatedPhrases: RollPhrase[] = [];
+  rollAttempts = 0;
+  maxRollAttempts = 3;
+  showDetailedInfo = false;
 
   constructor(private openaiService: OpenaiService) {}
 
@@ -157,6 +160,8 @@ export class FlashCardComponent implements OnChanges {
     this.showRollPopup = false;
     this.currentRollPhrase = null;
     this.generatedPhrases = []; // Clear history for next card
+    this.rollAttempts = 0; // Reset roll attempts
+    this.showDetailedInfo = false; // Reset detailed info
     this.markCorrect.emit();
   }
 
@@ -164,11 +169,13 @@ export class FlashCardComponent implements OnChanges {
     this.showRollPopup = false;
     this.currentRollPhrase = null;
     this.generatedPhrases = []; // Clear history for next card
+    this.rollAttempts = 0; // Reset roll attempts
+    this.showDetailedInfo = false; // Reset detailed info
     this.markIncorrect.emit();
   }
 
   async onRoll() {
-    if (!this.card) return;
+    if (!this.card || this.rollAttempts >= this.maxRollAttempts) return;
 
     this.rollLoading = true;
     try {
@@ -182,6 +189,7 @@ export class FlashCardComponent implements OnChanges {
       this.generatedPhrases.push(newPhrase);
       this.currentRollPhrase = newPhrase;
       this.showRollPopup = true;
+      this.rollAttempts++;
     } catch (err: any) {
       this.error = err.message || 'Failed to generate modified phrase.';
     } finally {
@@ -193,12 +201,18 @@ export class FlashCardComponent implements OnChanges {
     this.showRollPopup = false;
     this.currentRollPhrase = null;
     this.generatedPhrases = []; // Clear history when closing popup
+    this.rollAttempts = 0; // Reset roll attempts
   }
 
   onContinue() {
     this.showRollPopup = false;
     this.currentRollPhrase = null;
     this.generatedPhrases = []; // Clear history for next card
+    this.rollAttempts = 0; // Reset roll attempts
     this.markCorrect.emit();
+  }
+
+  onCardDoubleTap() {
+    this.showDetailedInfo = !this.showDetailedInfo;
   }
 }

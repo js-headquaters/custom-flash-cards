@@ -1,0 +1,42 @@
+<div class="popup-overlay" (click)="onOverlayClick($event)">
+  <mat-card class="popup-card" (dblclick)="onPopupDoubleTap()">
+    <mat-card-header>
+      <mat-card-title>Modified Phrase</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="phrase-container">
+        <div class="phrase portuguese">
+          <strong>Portuguese:</strong> {{ phrase.portuguese }}
+        </div>
+        <div class="phrase russian">
+          <strong>Russian:</strong> {{ phrase.russian }}
+        </div>
+        <div class="phrase attempts">
+            <strong>Осталось попыток:</strong> {{ maxRollAttempts - rollAttempts }}
+        </div>
+        @if (showDetailedInfo) {
+          <div class="phrase verbs">
+            <strong>Verbs:</strong> {{ phrase.verbs }}
+          </div>
+          <div class="phrase tense">
+            <strong>Tense:</strong> {{ phrase.tense }}
+          </div>
+        }
+      </div>
+    </mat-card-content>
+    <mat-card-actions>
+      <button
+        mat-button
+        color="accent"
+        (click)="onRoll()"
+        [disabled]="loading || rollAttempts >= maxRollAttempts"
+      >
+        {{ loading ? 'Rolling...' : 'Roll' }}
+      </button>
+      <button mat-button color="primary" (click)="onContinue()">
+        Continue
+      </button>
+      <button mat-button (click)="onClose()">Close</button>
+    </mat-card-actions>
+  </mat-card>
+</div> 

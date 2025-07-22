@@ -1,6 +1,6 @@
 <div class="flash-card-container">
   @if (card) {
-    <mat-card class="minimal-flash-card">
+    <mat-card class="minimal-flash-card" (dblclick)="onCardDoubleTap()">
       <mat-card-header>
         <mat-card-title>
           {{ card.portuguese }}
@@ -16,10 +16,12 @@
       </mat-card-header>
       <mat-card-content class="card-flex-content">
         <div class="card-main-content">
-          <div class="card-meta">
-            <div class="verbs">{{ card.verbs }}</div>
-            <div class="explanation">{{ card.explanation }}</div>
-          </div>
+          @if (showDetailedInfo) {
+            <div class="card-meta">
+              <div class="verbs">{{ card.verbs }}</div>
+              <div class="explanation">{{ card.explanation }}</div>
+            </div>
+          }
           @if (showAnswer) {
             <div class="card-answer">
               <div class="answer-text">
@@ -67,7 +69,7 @@
             mat-stroked-button 
             color="accent" 
             (click)="onRoll()" 
-            [disabled]="rollLoading"
+            [disabled]="rollLoading || rollAttempts >= maxRollAttempts"
             [hidden]="!showAnswer">
             {{ rollLoading ? 'Rolling...' : 'Roll' }}
           </button>
@@ -80,6 +82,8 @@
     <app-roll-popup 
       [phrase]="currentRollPhrase" 
       [loading]="rollLoading"
+      [rollAttempts]="rollAttempts"
+      [maxRollAttempts]="maxRollAttempts"
       (close)="onRollPopupClose()"
       (roll)="onRoll()"
       (continue)="onContinue()">

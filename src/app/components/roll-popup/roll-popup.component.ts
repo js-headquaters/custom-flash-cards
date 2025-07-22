@@ -8,45 +8,7 @@ import { RollPhrase } from '../../services/openai.service';
   selector: 'app-roll-popup',
   standalone: true,
   imports: [MatCardModule, MatButtonModule, CommonModule],
-  template: `
-    <div class="popup-overlay" (click)="onOverlayClick($event)">
-      <mat-card class="popup-card">
-        <mat-card-header>
-          <mat-card-title>Modified Phrase</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <div class="phrase-container">
-            <div class="phrase portuguese">
-              <strong>Portuguese:</strong> {{ phrase.portuguese }}
-            </div>
-            <div class="phrase russian">
-              <strong>Russian:</strong> {{ phrase.russian }}
-            </div>
-            <div class="phrase verbs">
-              <strong>Verbs:</strong> {{ phrase.verbs }}
-            </div>
-            <div class="phrase tense">
-              <strong>Tense:</strong> {{ phrase.tense }}
-            </div>
-          </div>
-        </mat-card-content>
-        <mat-card-actions>
-          <button
-            mat-button
-            color="accent"
-            (click)="onRoll()"
-            [disabled]="loading"
-          >
-            {{ loading ? 'Rolling...' : 'Roll' }}
-          </button>
-          <button mat-button color="primary" (click)="onContinue()">
-            Continue
-          </button>
-          <button mat-button (click)="onClose()">Close</button>
-        </mat-card-actions>
-      </mat-card>
-    </div>
-  `,
+  templateUrl: './roll-popup.component.html',
   styles: [
     `
       .popup-overlay {
@@ -95,6 +57,11 @@ import { RollPhrase } from '../../services/openai.service';
         border-left: 4px solid #9c27b0;
       }
 
+      .phrase.attempts {
+        border-left: 4px solid #f44336;
+        background-color: #ffebee;
+      }
+
       .phrase strong {
         color: #333;
       }
@@ -110,15 +77,20 @@ import { RollPhrase } from '../../services/openai.service';
 export class RollPopupComponent {
   @Input() phrase!: RollPhrase;
   @Input() loading = false;
+  @Input() rollAttempts = 0;
+  @Input() maxRollAttempts = 3;
   @Output() close = new EventEmitter<void>();
   @Output() roll = new EventEmitter<void>();
   @Output() continue = new EventEmitter<void>();
+
+  showDetailedInfo = false;
 
   onClose() {
     this.close.emit();
   }
 
   onRoll() {
+    this.showDetailedInfo = false;
     this.roll.emit();
   }
 
@@ -130,5 +102,9 @@ export class RollPopupComponent {
     if (event.target === event.currentTarget) {
       this.close.emit();
     }
+  }
+
+  onPopupDoubleTap() {
+    this.showDetailedInfo = !this.showDetailedInfo;
   }
 }
