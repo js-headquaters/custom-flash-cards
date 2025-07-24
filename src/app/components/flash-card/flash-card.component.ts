@@ -5,13 +5,21 @@ import {
   EventEmitter,
   OnChanges,
   SimpleChanges,
+  OnInit,
 } from '@angular/core';
 import { FlashCard } from '../../models/flash-card.interface';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { DecimalPipe } from '@angular/common';
 import { OpenaiService, RollPhrase } from '../../services/openai.service';
+import { InterestingWordsService } from '../../services/interesting-words.service';
 import { RollPopupComponent } from '../roll-popup/roll-popup.component';
+import { ClickableWordComponent } from '../clickable-word/clickable-word.component';
+import {
+  WordConfirmationDialogComponent,
+  WordConfirmationDialogData,
+} from '../word-confirmation-dialog/word-confirmation-dialog.component';
 
 function decodeUnicode(str: string): string {
   // Decodes unicode escape sequences like \u00ed
@@ -23,11 +31,19 @@ function decodeUnicode(str: string): string {
 @Component({
   selector: 'app-flash-card',
   standalone: true,
-  imports: [MatCardModule, MatButtonModule, DecimalPipe, RollPopupComponent],
+  imports: [
+    MatCardModule,
+    MatButtonModule,
+    MatDialogModule,
+    DecimalPipe,
+    RollPopupComponent,
+    ClickableWordComponent,
+    WordConfirmationDialogComponent,
+  ],
   templateUrl: './flash-card.component.html',
   styleUrl: './flash-card.component.scss',
 })
-export class FlashCardComponent implements OnChanges {
+export class FlashCardComponent implements OnChanges, OnInit {
   @Input() card!: FlashCard;
   @Input() showAnswer = false;
   @Input() showEnglish = false;
@@ -45,12 +61,99 @@ export class FlashCardComponent implements OnChanges {
   maxRollAttempts = 3;
   showDetailedInfo = false;
 
-  constructor(private openaiService: OpenaiService) {}
+  // New properties for interesting words
+  interestingWords: Set<string> = new Set();
+  portugueseWords: string[] = [];
+
+  constructor(
+    private openaiService: OpenaiService,
+    private interestingWordsService: InterestingWordsService,
+    private dialog: MatDialog
+  ) {}
+
+  async ngOnInit() {
+    await this.loadInterestingWords();
+  }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['card'] && this.card && !this.card.examples) {
       this.generateExamples();
     }
+    if (changes['card'] && this.card) {
+      this.parseWords();
+    }
+  }
+
+  private parseWords() {
+    if (this.card.portuguese) {
+      this.portugueseWords = this.card.portuguese
+        .split(/\s+/)
+        .filter((word) => word.trim().length > 0);
+    }
+  }
+
+  private async loadInterestingWords() {
+    try {
+      const portugueseWords =
+        await this.interestingWordsService.getInterestingWordsList();
+      this.interestingWords = new Set(portugueseWords);
+    } catch (error) {
+      console.error('Error loading interesting words:', error);
+    }
+  }
+
+  onWordClick(word: string) {
+    const isCurrentlyInteresting = this.isWordInteresting(word);
+    const dialogRef = this.dialog.open(WordConfirmationDialogComponent, {
+      width: '400px',
+      data: {
+        word,
+        isCurrentlyInteresting,
+      } as WordConfirmationDialogData,
+    });
+
+    dialogRef.afterClosed().subscribe(async (result) => {
+      if (result) {
+        const wasAdded =
+          await this.interestingWordsService.toggleInterestingWord(word);
+        await this.loadInterestingWords();
+
+        if (wasAdded) {
+          console.log(`Word "${word}" marked as interesting`);
+        } else {
+          console.log(`Word "${word}" unmarked as interesting`);
+        }
+      }
+    });
+  }
+
+  isWordInteresting(word: string): boolean {
+    const normalizedWord = word.toLowerCase().trim();
+
+    // Check for exact match first
+    if (this.interestingWords.has(normalizedWord)) {
+      return true;
+    }
+
+    // Check for partial matches only for words longer than 3 characters
+    // This prevents false positives with common short words like "o", "a", "e", etc.
+    if (normalizedWord.length > 3) {
+      for (const interestingWord of this.interestingWords) {
+        // Only check if the interesting word is also longer than 3 characters
+        if (interestingWord.length > 3) {
+          // Check if the current word contains the interesting word
+          if (normalizedWord.includes(interestingWord)) {
+            return true;
+          }
+          // Check if the interesting word contains the current word (for longer interesting words)
+          if (interestingWord.includes(normalizedWord)) {
+            return true;
+          }
+        }
+      }
+    }
+
+    return false;
   }
 
   async generateExamples() {
@@ -179,10 +282,15 @@ export class FlashCardComponent implements OnChanges {
 
     this.rollLoading = true;
     try {
+      // Get interesting words for the prompt
+      const interestingWords =
+        await this.interestingWordsService.getInterestingWordsList();
+
       const newPhrase = await this.openaiService.generateRollPhrase(
         this.card.portuguese,
         this.card.english,
-        this.generatedPhrases
+        this.generatedPhrases,
+        interestingWords
       );
 
       // Add the new phrase to history

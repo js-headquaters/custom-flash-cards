@@ -25,6 +25,15 @@ mat-card-title {
   color: #222;
 }
 
+.word-container {
+  display: inline;
+  line-height: 1.5;
+}
+
+.word-separator {
+  white-space: pre;
+}
+
 .card-flex-content {
   display: flex;
   flex-direction: column;

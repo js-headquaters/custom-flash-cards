@@ -3,7 +3,19 @@
     <mat-card class="minimal-flash-card" (dblclick)="onCardDoubleTap()">
       <mat-card-header>
         <mat-card-title>
-          {{ card.portuguese }}
+          <div class="word-container">
+            @for (word of portugueseWords; track word; let i = $index) {
+              <app-clickable-word
+                [word]="word"
+                [isInteresting]="isWordInteresting(word)"
+                [readOnly]="false"
+                (wordClick)="onWordClick($event)">
+              </app-clickable-word>
+              @if (i < portugueseWords.length - 1) {
+                <span class="word-separator"> </span>
+              }
+            }
+          </div>
         </mat-card-title>
         <mat-card-subtitle>
           <div class="progress-info">

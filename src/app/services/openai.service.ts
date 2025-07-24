@@ -16,7 +16,8 @@ export class OpenaiService {
   async generateRollPhrase(
     originalPortuguese: string,
     originalRussian: string,
-    existingPhrases: RollPhrase[] = []
+    existingPhrases: RollPhrase[] = [],
+    interestingWords: string[] = []
   ): Promise<RollPhrase> {
     const apiKey = localStorage.getItem('openaiKey');
     if (!apiKey) {
@@ -75,6 +76,19 @@ export class OpenaiService {
                 .join('\n')}`
             : '';
 
+        // Create interesting words text with random chance
+        let interestingWordsText = '';
+        if (interestingWords.length > 0) {
+          // 30% chance to use interesting words (between 20-40%)
+          const shouldUseInterestingWords = Math.random() < 0.5;
+
+          if (shouldUseInterestingWords) {
+            interestingWordsText = `\n\nIMPORTANT: Try to use these interesting words in your generated phrase: ${interestingWords.join(
+              ', '
+            )}. If possible, incorporate one or more of these words naturally into the sentence.`;
+          }
+        }
+
         const messages = [
           {
             role: 'system',
@@ -85,7 +99,7 @@ export class OpenaiService {
             role: 'user',
             content: `Original Portuguese: "${originalPortuguese}"
 
-Generate a modified conversational common meaningful version by changing one or a few meaningful words (maybe with prepositions, like change "Eu" to "A gente" or vice versa or the main noun (like change "eu" to "segurança") and changing according verb) or change the tense from present to past or conversational future (ir + infinitive) or use antonyms (avoid using synonyms, avoid using "NO/NAO") in the Portuguese phrase and provide its Russian translation. Ensure that the modified phrase is not the same as the original phrase. Also identify the verbs used and the grammatical tense. Use the verb in the correct form for the tense with the correct conjugation.${existingPhrasesText}`,
+Generate a modified conversational common meaningful version by changing one or a few meaningful words (maybe with prepositions, like change "Eu" to "A gente" or vice versa or the main noun (like change "eu" to "segurança") and changing according verb) or change the tense from present to past or conversational future (ir + infinitive) or use antonyms (avoid using synonyms, avoid using "NO/NAO") in the Portuguese phrase and provide its Russian translation. Ensure that the modified phrase is not the same as the original phrase. Also identify the verbs used and the grammatical tense. Use the verb in the correct form for the tense with the correct conjugation.${existingPhrasesText}${interestingWordsText}`,
           },
         ];
 
