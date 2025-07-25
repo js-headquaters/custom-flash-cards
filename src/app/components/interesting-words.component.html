@@ -1,0 +1,27 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>Interesting Words</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <form (ngSubmit)="addWord()" style="margin-bottom: 1rem; display: flex; gap: 1rem; align-items: center;">
+      <mat-form-field appearance="outline" style="flex: 1;">
+        <mat-label>Add new word</mat-label>
+        <input matInput [(ngModel)]="newWord" name="newWord" placeholder="Enter word" required />
+      </mat-form-field>
+      <button mat-raised-button color="primary" type="submit" [disabled]="!newWord.trim() || loading">Add</button>
+    </form>
+    <div *ngIf="loading">Loading...</div>
+    <div *ngIf="error" style="color: red;">{{ error }}</div>
+    <div *ngIf="!loading && interestingWords.length === 0" class="empty-state">
+      <p>No interesting words yet. Add your first one above!</p>
+    </div>
+    <div *ngIf="interestingWords.length > 0">
+      <ul style="list-style: none; padding: 0;">
+        <li *ngFor="let word of interestingWords" style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem;">
+          <span style="flex: 1; font-size: 1.1rem;">{{ word.word }}</span>
+          <button mat-stroked-button color="warn" (click)="unmarkWord(word.word)" [disabled]="loading">Unmark</button>
+        </li>
+      </ul>
+    </div>
+  </mat-card-content>
+</mat-card>

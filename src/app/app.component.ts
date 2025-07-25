@@ -14,6 +14,9 @@ import { MigrationService } from './services/migration.service';
         <a routerLink="/add" routerLinkActive="active">Add Phrase</a>
         <a routerLink="/upload" routerLinkActive="active">Upload CSV</a>
         <a routerLink="/library" routerLinkActive="active">Library</a>
+        <a routerLink="/interesting-words" routerLinkActive="active"
+          >Interesting Words</a
+        >
         <a routerLink="/settings" routerLinkActive="active">Settings</a>
       </nav>
       <div class="mobile-menu" *ngIf="isMobileMenuOpen">
@@ -28,6 +31,12 @@ import { MigrationService } from './services/migration.service';
         >
         <a routerLink="/library" routerLinkActive="active" (click)="closeMenu()"
           >Library</a
+        >
+        <a
+          routerLink="/interesting-words"
+          routerLinkActive="active"
+          (click)="closeMenu()"
+          >Interesting Words</a
         >
         <a
           routerLink="/settings"

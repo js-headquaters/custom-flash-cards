@@ -112,6 +112,20 @@ import {
         gap: 10px;
         justify-content: flex-end;
       }
+
+      mat-card-header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+
+      mat-card-title {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+      }
     `,
   ],
 })
@@ -236,6 +250,7 @@ export class RollPopupComponent implements OnInit, OnChanges {
   }
 
   onPopupDoubleTap() {
+    console.log('>> onPopupDoubleTap');
     this.showDetailedInfo = !this.showDetailedInfo;
   }
 }
