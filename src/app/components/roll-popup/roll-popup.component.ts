@@ -162,45 +162,37 @@ export class RollPopupComponent implements OnInit, OnChanges {
     }
   }
 
-  isWordInteresting(word: string): boolean {
-    const normalizedWord = word.toLowerCase().trim();
-
-    // Check for exact match first
-    if (this.interestingWords.has(normalizedWord)) {
-      return true;
-    }
-
-    // Check for partial matches only for words longer than 3 characters
-    // This prevents false positives with common short words like "o", "a", "e", etc.
-    if (normalizedWord.length > 3) {
-      for (const interestingWord of this.interestingWords) {
-        // Only check if the interesting word is also longer than 3 characters
-        if (interestingWord.length > 3) {
-          // Check if the current word contains the interesting word
-          if (normalizedWord.includes(interestingWord)) {
-            return true;
-          }
-          // Check if the interesting word contains the current word (for longer interesting words)
-          if (interestingWord.includes(normalizedWord)) {
-            return true;
-          }
-        }
-      }
-    }
-
-    return false;
-  }
-
   wasInterestingWordsUsed(): boolean {
     console.log(
       '>> was interesting words used',
-      this.portugueseWords.some((word) => this.isWordInteresting(word))
+      this.portugueseWords.some((word) =>
+        this.interestingWordsService.isWordInteresting(
+          word,
+          this.interestingWords
+        )
+      )
     );
-    return this.portugueseWords.some((word) => this.isWordInteresting(word));
+    return this.portugueseWords.some((word) =>
+      this.interestingWordsService.isWordInteresting(
+        word,
+        this.interestingWords
+      )
+    );
+  }
+
+  public isWordInteresting(word: string): boolean {
+    return this.interestingWordsService.isWordInteresting(
+      word,
+      this.interestingWords
+    );
   }
 
   async onWordClick(word: string) {
-    const isCurrentlyInteresting = this.isWordInteresting(word);
+    const isCurrentlyInteresting =
+      this.interestingWordsService.isWordInteresting(
+        word,
+        this.interestingWords
+      );
     const dialogRef = this.dialog.open(WordConfirmationDialogComponent, {
       width: '400px',
       data: {

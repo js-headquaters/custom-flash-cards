@@ -53,38 +53,16 @@ export class InterestingWordsService {
     await db.put('interestingWords', interestingWord);
   }
 
-  async removeInterestingWord(word: string): Promise<void> {
-    const db = await this.dbPromise;
-    const tx = db.transaction('interestingWords', 'readwrite');
-    const store = tx.objectStore('interestingWords');
-    const index = store.index('by-word');
-    const cursor = await index.openCursor();
-
-    while (cursor) {
-      if (cursor.value.word === word.toLowerCase().trim()) {
-        await cursor.delete();
-        break;
-      }
-      await cursor.continue();
-    }
-  }
-
   async toggleInterestingWord(word: string): Promise<boolean> {
     const db = await this.dbPromise;
     const tx = db.transaction('interestingWords', 'readwrite');
     const store = tx.objectStore('interestingWords');
     const index = store.index('by-word');
-    const cursor = await index.openCursor();
-
-    while (cursor) {
-      if (cursor.value.word === word.toLowerCase().trim()) {
-        // Word exists, remove it
-        await cursor.delete();
-        return false; // Word was removed
-      }
-      await cursor.continue();
+    const key = await index.getKey(word.toLowerCase().trim());
+    if (key) {
+      await store.delete(key);
+      return false; // Word was removed
     }
-
     // Word doesn't exist, add it
     await this.addInterestingWord(word);
     return true; // Word was added
@@ -98,5 +76,34 @@ export class InterestingWordsService {
   async getInterestingWordsList(): Promise<string[]> {
     const words = await this.getAllInterestingWords();
     return words.map((w) => w.word);
+  }
+
+  isWordInteresting(word: string, interestingWords: Set<string>): boolean {
+    const normalizedWord = word.toLowerCase().trim();
+
+    // Check for exact match first
+    if (interestingWords.has(normalizedWord)) {
+      return true;
+    }
+
+    // Check for partial matches only for words longer than 3 characters
+    // This prevents false positives with common short words like "o", "a", "e", etc.
+    if (normalizedWord.length > 3) {
+      for (const interestingWord of interestingWords) {
+        // Only check if the interesting word is also longer than 3 characters
+        if (interestingWord.length > 3) {
+          // Check if the current word contains the interesting word
+          if (normalizedWord.includes(interestingWord)) {
+            return true;
+          }
+          // Check if the interesting word contains the current word (for longer interesting words)
+          if (interestingWord.includes(normalizedWord)) {
+            return true;
+          }
+        }
+      }
+    }
+
+    return false;
   }
 }
