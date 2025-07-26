@@ -2,29 +2,39 @@
   @if (card) {
     <mat-card class="minimal-flash-card" (dblclick)="onCardDoubleTap()">
       <mat-card-header>
-        <mat-card-title>
-          <div class="word-container">
-            @for (word of portugueseWords; track word; let i = $index) {
-              <app-clickable-word
-                [word]="word"
-                [isInteresting]="isWordInteresting(word)"
-                [readOnly]="false"
-                (wordClick)="onWordClick($event)">
-              </app-clickable-word>
-              @if (i < portugueseWords.length - 1) {
-                <span class="word-separator"> </span>
+        <div class="header-content">
+          <mat-card-title>
+            <div class="word-container">
+              @for (word of portugueseWords; track word; let i = $index) {
+                <app-clickable-word
+                  [word]="word"
+                  [isInteresting]="isWordInteresting(word)"
+                  [readOnly]="false"
+                  (wordClick)="onWordClick($event)">
+                </app-clickable-word>
+                @if (i < portugueseWords.length - 1) {
+                  <span class="word-separator"> </span>
+                }
               }
-            }
-          </div>
-        </mat-card-title>
-        <mat-card-subtitle>
-          <div class="progress-info">
-            <span class="progress-text">Progress: {{ (card.progress || 0) | number:'1.0-0' }}%</span>
-            <div class="progress-bar-container">
-              <div class="progress-bar" [style.width.%]="card.progress || 0"></div>
             </div>
-          </div>
-        </mat-card-subtitle>
+          </mat-card-title>
+          <mat-card-subtitle>
+            <div class="progress-info">
+              <span class="progress-text">Progress: {{ (card.progress || 0) | number:'1.0-0' }}%</span>
+              <div class="progress-bar-container">
+                <div class="progress-bar" [style.width.%]="card.progress || 0"></div>
+              </div>
+            </div>
+          </mat-card-subtitle>
+        </div>
+        <button 
+          mat-icon-button 
+          class="stop-learning-btn"
+          (click)="onStopLearning()" 
+          [hidden]="!showAnswer"
+          matTooltip="Stop learning this phrase">
+          <span class="material-icons">remove_circle_outline</span>
+        </button>
       </mat-card-header>
       <mat-card-content class="card-flex-content">
         <div class="card-main-content">

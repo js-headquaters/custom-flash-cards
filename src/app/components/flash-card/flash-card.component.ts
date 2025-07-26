@@ -10,10 +10,13 @@ import {
 import { FlashCard } from '../../models/flash-card.interface';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { DecimalPipe } from '@angular/common';
 import { OpenaiService, RollPhrase } from '../../services/openai.service';
 import { InterestingWordsService } from '../../services/interesting-words.service';
+import { FlashCardService } from '../../services/flash-card.service';
 import { RollPopupComponent } from '../roll-popup/roll-popup.component';
 import { ClickableWordComponent } from '../clickable-word/clickable-word.component';
 import {
@@ -34,6 +37,8 @@ function decodeUnicode(str: string): string {
   imports: [
     MatCardModule,
     MatButtonModule,
+    MatIconModule,
+    MatTooltipModule,
     MatDialogModule,
     DecimalPipe,
     RollPopupComponent,
@@ -50,6 +55,7 @@ export class FlashCardComponent implements OnChanges, OnInit {
   @Output() showAnswerChange = new EventEmitter<boolean>();
   @Output() markCorrect = new EventEmitter<void>();
   @Output() markIncorrect = new EventEmitter<void>();
+  @Output() stopLearning = new EventEmitter<void>();
 
   loading = false;
   error: string | null = null;
@@ -68,6 +74,7 @@ export class FlashCardComponent implements OnChanges, OnInit {
   constructor(
     private openaiService: OpenaiService,
     private interestingWordsService: InterestingWordsService,
+    private flashCardService: FlashCardService,
     private dialog: MatDialog
   ) {}
 
@@ -297,6 +304,22 @@ export class FlashCardComponent implements OnChanges, OnInit {
 
   onCardDoubleTap() {
     this.showDetailedInfo = !this.showDetailedInfo;
+  }
+
+  async onStopLearning() {
+    if (
+      confirm(
+        `Are you sure you want to stop learning "${this.card.portuguese}"? This will remove it from your learning list.`
+      )
+    ) {
+      try {
+        await this.flashCardService.deleteFlashCard(this.card.id);
+        this.stopLearning.emit();
+      } catch (error) {
+        console.error('Error deleting flash card:', error);
+        alert('Failed to remove the phrase. Please try again.');
+      }
+    }
   }
 
   public isWordInteresting(word: string): boolean {

@@ -17,6 +17,56 @@
 mat-card-header {
   border-bottom: 1px solid #f0f0f0;
   margin-bottom: 0.5rem;
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.header-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.stop-learning-btn {
+  flex-shrink: 0;
+  margin-left: 8px;
+  opacity: 0.4;
+  transition: opacity 0.2s ease;
+  width: 32px;
+  height: 32px;
+  line-height: 32px;
+  position: relative;
+  transform: none;
+  border: none;
+  outline: none;
+  box-shadow: none;
+}
+
+.stop-learning-btn:hover {
+  opacity: 0.8;
+  transform: none;
+  box-shadow: none;
+}
+
+.stop-learning-btn:active {
+  transform: none;
+  box-shadow: none;
+}
+
+.stop-learning-btn:focus {
+  box-shadow: none;
+  outline: none;
+}
+
+.stop-learning-btn .material-icons {
+  font-size: 16px;
+  color: #999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
 }
 
 mat-card-title {
@@ -47,11 +97,12 @@ mat-card-title {
 
 .card-actions-bottom {
   display: flex;
-  gap: 1rem;
+  gap: 0.5rem;
   justify-content: center;
   margin-top: auto;
   padding-top: 1.2rem;
   min-height: 48px;
+  flex-wrap: wrap;
 }
 
 .card-meta {

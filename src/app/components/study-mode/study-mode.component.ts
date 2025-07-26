@@ -140,6 +140,7 @@ function shuffleByProgress(cards: FlashCard[]): FlashCard[] {
       (showAnswerChange)="showAnswer = $event"
       (markCorrect)="markCorrect()"
       (markIncorrect)="markIncorrect()"
+      (stopLearning)="stopLearning()"
     ></app-flash-card>
 
     <mat-progress-bar mode="determinate" [value]="progress"></mat-progress-bar>
@@ -262,6 +263,24 @@ export class StudyModeComponent {
         this.currentCard.id,
         false
       );
+    }
+    this.nextCard();
+  }
+
+  async stopLearning() {
+    // Remove the current card from the cards array
+    if (this.currentCard) {
+      this.cards = this.cards.filter(
+        (card) => card.id !== this.currentCard!.id
+      );
+
+      // Update the category word count
+      if (this.selectedCategory) {
+        await this.categoryService.updateWordCount(
+          this.selectedCategory.id,
+          this.cards.length
+        );
+      }
     }
     this.nextCard();
   }
