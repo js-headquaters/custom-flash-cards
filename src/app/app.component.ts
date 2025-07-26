@@ -9,8 +9,38 @@ import { MigrationService } from './services/migration.service';
       <button class="menu-toggle" (click)="toggleMenu()" aria-label="Open menu">
         <span class="material-icons">menu</span>
       </button>
+      <div
+        class="mobile-overlay"
+        *ngIf="isMobileMenuOpen"
+        (click)="closeMenu()"
+      ></div>
       <nav class="nav-bar" [class.hide-mobile]="isMobileMenuOpen">
-        <a routerLink="/study" routerLinkActive="active">Study</a>
+        <div
+          class="dropdown"
+          (mouseenter)="openDropdown()"
+          (mouseleave)="closeDropdown()"
+        >
+          <a
+            class="dropdown-toggle"
+            (click)="toggleDropdown()"
+            [class.active]="isDropdownOpen || isStudyActive()"
+            >Study <span class="arrow">▼</span></a
+          >
+          <div class="dropdown-menu" *ngIf="isDropdownOpen">
+            <a
+              routerLink="/study"
+              routerLinkActive="active"
+              (click)="closeDropdown()"
+              >Library</a
+            >
+            <a
+              routerLink="/interesting-words"
+              routerLinkActive="active"
+              (click)="closeDropdown()"
+              >Interesting Words</a
+            >
+          </div>
+        </div>
         <a routerLink="/add" routerLinkActive="active">Add Phrase</a>
         <a routerLink="/upload" routerLinkActive="active">Upload CSV</a>
         <a routerLink="/library" routerLinkActive="active">Library</a>
@@ -20,9 +50,27 @@ import { MigrationService } from './services/migration.service';
         <a routerLink="/settings" routerLinkActive="active">Settings</a>
       </nav>
       <div class="mobile-menu" *ngIf="isMobileMenuOpen">
-        <a routerLink="/study" routerLinkActive="active" (click)="closeMenu()"
-          >Study</a
-        >
+        <div class="dropdown-mobile">
+          <a
+            (click)="toggleMobileDropdown()"
+            [class.active]="isMobileDropdownOpen || isStudyActive()"
+            >Study <span class="arrow">▼</span></a
+          >
+          <div class="dropdown-menu-mobile" *ngIf="isMobileDropdownOpen">
+            <a
+              routerLink="/study"
+              routerLinkActive="active"
+              (click)="closeMenu()"
+              >Library</a
+            >
+            <a
+              routerLink="/interesting-words"
+              routerLinkActive="active"
+              (click)="closeMenu()"
+              >Interesting Words</a
+            >
+          </div>
+        </div>
         <a routerLink="/add" routerLinkActive="active" (click)="closeMenu()"
           >Add Phrase</a
         >
@@ -46,6 +94,9 @@ import { MigrationService } from './services/migration.service';
         >
       </div>
       <router-outlet></router-outlet>
+      <div class="page-content" [class.hide-content]="isMobileMenuOpen">
+        <!-- Контент страницы будет здесь, если потребуется -->
+      </div>
     </div>
   `,
   styles: [
@@ -98,6 +149,52 @@ import { MigrationService } from './services/migration.service';
       .mobile-menu {
         display: none;
       }
+      .mobile-overlay {
+        display: none;
+      }
+      .dropdown {
+        position: relative;
+        display: inline-block;
+      }
+      .dropdown-toggle {
+        cursor: pointer;
+        user-select: none;
+        display: inline-flex;
+        align-items: center;
+      }
+      .dropdown-toggle .arrow {
+        margin-left: 0.3em;
+        font-size: 0.65em;
+        line-height: 1;
+      }
+      .dropdown-menu {
+        display: block;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        background: #fff;
+        min-width: 160px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        border-radius: 8px;
+        z-index: 1002;
+        padding: 0.5em 0;
+      }
+      .dropdown-menu a {
+        display: block;
+        padding: 0.7em 1.2em;
+        color: #333;
+        text-decoration: none;
+        white-space: nowrap;
+        font-size: 1rem;
+        border-bottom: 1px solid #eee;
+      }
+      .dropdown-menu a:last-child {
+        border-bottom: none;
+      }
+      .dropdown-menu a.active {
+        color: #1976d2;
+        font-weight: 600;
+      }
       @media (max-width: 600px) {
         .container {
           padding: 8px;
@@ -121,6 +218,25 @@ import { MigrationService } from './services/migration.service';
           margin: 0 0 1rem 0;
           padding: 1rem 0.5rem;
           z-index: 1000;
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100vw;
+          height: 100vh;
+          overflow-y: auto;
+        }
+        .mobile-overlay {
+          display: block;
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100vw;
+          height: 100vh;
+          background: rgba(0, 0, 0, 0.25);
+          z-index: 999;
+        }
+        .page-content.hide-content {
+          display: none !important;
         }
         .mobile-menu a {
           padding: 0.7rem 1rem;
@@ -136,6 +252,50 @@ import { MigrationService } from './services/migration.service';
           color: #1976d2;
           font-weight: 600;
         }
+        .dropdown,
+        .dropdown-toggle,
+        .dropdown-menu {
+          all: unset;
+        }
+        .dropdown-mobile {
+          display: flex;
+          flex-direction: column;
+        }
+        .dropdown-mobile > a {
+          cursor: pointer;
+          padding: 0.7rem 1rem;
+          font-size: 1.1rem;
+          color: #333;
+          text-decoration: none;
+          border-bottom: 1px solid #eee;
+          display: inline-flex;
+          align-items: center;
+        }
+        .dropdown-mobile > a .arrow {
+          font-size: 0.65em;
+          margin-left: 0.3em;
+        }
+        .dropdown-menu-mobile {
+          display: flex;
+          flex-direction: column;
+          background: #f9f9f9;
+          border-radius: 8px;
+          margin-left: 1rem;
+        }
+        .dropdown-menu-mobile a {
+          padding: 0.7rem 1.5rem;
+          font-size: 1.05rem;
+          color: #333;
+          text-decoration: none;
+          border-bottom: 1px solid #eee;
+        }
+        .dropdown-menu-mobile a:last-child {
+          border-bottom: none;
+        }
+        .dropdown-menu-mobile a.active {
+          color: #1976d2;
+          font-weight: 600;
+        }
       }
     `,
   ],
@@ -143,6 +303,8 @@ import { MigrationService } from './services/migration.service';
 export class AppComponent implements OnInit {
   title = 'custom-flash-cards';
   isMobileMenuOpen = false;
+  isDropdownOpen = false;
+  isMobileDropdownOpen = false;
 
   constructor(private migrationService: MigrationService) {}
 
@@ -156,5 +318,27 @@ export class AppComponent implements OnInit {
   }
   closeMenu() {
     this.isMobileMenuOpen = false;
+    this.isMobileDropdownOpen = false;
+  }
+  // Dropdown logic for desktop
+  openDropdown() {
+    this.isDropdownOpen = true;
+  }
+  closeDropdown() {
+    this.isDropdownOpen = false;
+  }
+  toggleDropdown() {
+    this.isDropdownOpen = !this.isDropdownOpen;
+  }
+  // Dropdown logic for mobile
+  toggleMobileDropdown() {
+    this.isMobileDropdownOpen = !this.isMobileDropdownOpen;
+  }
+  // Helper to highlight Study as active if on /study or /interesting-words
+  isStudyActive(): boolean {
+    return (
+      location.hash.startsWith('#/study') ||
+      location.hash.startsWith('#/interesting-words')
+    );
   }
 }
