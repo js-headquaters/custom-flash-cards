@@ -13,6 +13,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { DecimalPipe } from '@angular/common';
 import { OpenaiService, RollPhrase } from '../../services/openai.service';
 import { InterestingWordsService } from '../../services/interesting-words.service';
@@ -40,6 +41,7 @@ function decodeUnicode(str: string): string {
     MatIconModule,
     MatTooltipModule,
     MatDialogModule,
+    MatProgressSpinnerModule,
     DecimalPipe,
     RollPopupComponent,
     ClickableWordComponent,
@@ -52,6 +54,8 @@ export class FlashCardComponent implements OnChanges, OnInit {
   @Input() card!: FlashCard;
   @Input() showAnswer = false;
   @Input() showEnglish = false;
+  @Input() isInterestingWordsMode = false;
+  @Input() isLoading = false;
   @Output() showAnswerChange = new EventEmitter<boolean>();
   @Output() markCorrect = new EventEmitter<void>();
   @Output() markIncorrect = new EventEmitter<void>();

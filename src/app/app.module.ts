@@ -13,6 +13,7 @@ import { UploadCsvComponent } from './components/upload-csv/upload-csv.component
 import { SettingsComponent } from './components/settings/settings.component';
 import { LibraryComponent } from './components/library/library.component';
 import { InterestingWordsComponent } from './components/interesting-words.component';
+import { InterestingWordsStudyModeComponent } from './components/interesting-words-study-mode/interesting-words-study-mode.component';
 import { HashLocationStrategy, LocationStrategy } from '@angular/common';
 
 @NgModule({
@@ -28,6 +29,7 @@ import { HashLocationStrategy, LocationStrategy } from '@angular/common';
     SettingsComponent,
     LibraryComponent,
     InterestingWordsComponent,
+    InterestingWordsStudyModeComponent,
     RouterModule.forRoot(routes),
   ],
   providers: [{ provide: LocationStrategy, useClass: HashLocationStrategy }],

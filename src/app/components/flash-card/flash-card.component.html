@@ -19,7 +19,7 @@
             </div>
           </mat-card-title>
           <mat-card-subtitle>
-            <div class="progress-info">
+            <div class="progress-info" [hidden]="isInterestingWordsMode">
               <span class="progress-text">Progress: {{ (card.progress || 0) | number:'1.0-0' }}%</span>
               <div class="progress-bar-container">
                 <div class="progress-bar" [style.width.%]="card.progress || 0"></div>
@@ -70,20 +70,37 @@
           }
         </div>
         <div class="card-actions-bottom">
-          <button mat-stroked-button color="accent" (click)="showAnswerChange.emit(true)" [hidden]="showAnswer">
+          <button mat-stroked-button color="accent" (click)="showAnswerChange.emit(true)" [hidden]="showAnswer" [disabled]="isLoading">
             Show Answer
           </button>
-          <button mat-stroked-button color="primary" (click)="onMarkCorrect()" [hidden]="!showAnswer">
-            Correct
-          </button>
-          <button mat-stroked-button color="warn" (click)="onMarkIncorrect()" [hidden]="!showAnswer">
-            Incorrect
-          </button>
+          
+          <!-- Regular study mode buttons -->
+          @if (!isInterestingWordsMode) {
+            <button mat-stroked-button color="primary" (click)="onMarkCorrect()" [hidden]="!showAnswer" [disabled]="isLoading">
+              Correct
+            </button>
+            <button mat-stroked-button color="warn" (click)="onMarkIncorrect()" [hidden]="!showAnswer" [disabled]="isLoading">
+              Incorrect
+            </button>
+          }
+          
+          <!-- Interesting words study mode button -->
+          @if (isInterestingWordsMode) {
+            <button mat-stroked-button color="primary" (click)="onMarkCorrect()" [hidden]="!showAnswer" [disabled]="isLoading">
+              @if (isLoading) {
+                <mat-spinner diameter="16" class="button-spinner"></mat-spinner>
+                Generating...
+              } @else {
+                Next Phrase
+              }
+            </button>
+          }
+          
           <button 
             mat-stroked-button 
             color="accent" 
             (click)="onRoll()" 
-            [disabled]="rollLoading || rollAttempts >= maxRollAttempts"
+            [disabled]="rollLoading || rollAttempts >= maxRollAttempts || isLoading"
             [hidden]="!showAnswer">
             {{ rollLoading ? 'Rolling...' : 'Roll' }}
           </button>
@@ -92,7 +109,8 @@
           mat-icon-button 
           class="stop-learning-btn"
           (click)="onStopLearning()" 
-          matTooltip="Stop learning this phrase">
+          matTooltip="Stop learning this phrase"
+          [hidden]="isInterestingWordsMode">
           <span class="material-icons">delete</span>
         </button>
       </mat-card-content>

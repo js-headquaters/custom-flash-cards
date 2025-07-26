@@ -5,6 +5,7 @@ import { UploadCsvComponent } from './components/upload-csv/upload-csv.component
 import { SettingsComponent } from './components/settings/settings.component';
 import { LibraryComponent } from './components/library/library.component';
 import { InterestingWordsComponent } from './components/interesting-words.component';
+import { InterestingWordsStudyModeComponent } from './components/interesting-words-study-mode/interesting-words-study-mode.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'study', pathMatch: 'full' },
@@ -14,4 +15,8 @@ export const routes: Routes = [
   { path: 'settings', component: SettingsComponent },
   { path: 'library', component: LibraryComponent },
   { path: 'interesting-words', component: InterestingWordsComponent },
+  {
+    path: 'study/interesting-words',
+    component: InterestingWordsStudyModeComponent,
+  },
 ];

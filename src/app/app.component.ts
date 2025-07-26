@@ -34,7 +34,7 @@ import { MigrationService } from './services/migration.service';
               >Library</a
             >
             <a
-              routerLink="/interesting-words"
+              routerLink="/study/interesting-words"
               routerLinkActive="active"
               (click)="closeDropdown()"
               >Interesting Words</a
@@ -64,7 +64,7 @@ import { MigrationService } from './services/migration.service';
               >Library</a
             >
             <a
-              routerLink="/interesting-words"
+              routerLink="/study/interesting-words"
               routerLinkActive="active"
               (click)="closeMenu()"
               >Interesting Words</a
@@ -338,7 +338,7 @@ export class AppComponent implements OnInit {
   isStudyActive(): boolean {
     return (
       location.hash.startsWith('#/study') ||
-      location.hash.startsWith('#/interesting-words')
+      location.hash.startsWith('#/study/interesting-words')
     );
   }
 }
