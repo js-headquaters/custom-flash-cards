@@ -12,6 +12,7 @@
   box-shadow: 0 2px 12px rgba(0,0,0,0.07);
   border-radius: 12px;
   background: #fff;
+  position: relative;
 }
 
 mat-card-header {
@@ -29,28 +30,26 @@ mat-card-header {
 }
 
 .stop-learning-btn {
-  flex-shrink: 0;
-  margin-left: 8px;
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
   opacity: 0.4;
   transition: opacity 0.2s ease;
   width: 32px;
   height: 32px;
   line-height: 32px;
-  position: relative;
-  transform: none;
   border: none;
   outline: none;
   box-shadow: none;
+  z-index: 10;
 }
 
 .stop-learning-btn:hover {
   opacity: 0.8;
-  transform: none;
   box-shadow: none;
 }
 
 .stop-learning-btn:active {
-  transform: none;
   box-shadow: none;
 }
 

@@ -27,14 +27,6 @@
             </div>
           </mat-card-subtitle>
         </div>
-        <button 
-          mat-icon-button 
-          class="stop-learning-btn"
-          (click)="onStopLearning()" 
-          [hidden]="!showAnswer"
-          matTooltip="Stop learning this phrase">
-          <span class="material-icons">remove_circle_outline</span>
-        </button>
       </mat-card-header>
       <mat-card-content class="card-flex-content">
         <div class="card-main-content">
@@ -96,6 +88,13 @@
             {{ rollLoading ? 'Rolling...' : 'Roll' }}
           </button>
         </div>
+        <button 
+          mat-icon-button 
+          class="stop-learning-btn"
+          (click)="onStopLearning()" 
+          matTooltip="Stop learning this phrase">
+          <span class="material-icons">delete</span>
+        </button>
       </mat-card-content>
     </mat-card>
   }
